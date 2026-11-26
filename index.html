@@ -112,7 +112,7 @@ const DADOS = {
  "nome": "Eduarda",
  "emoji": "🍕",
  "papel": "Analista de Marketing · Øliver's · Grupo ROB",
- "foco": "Você é a dona do fechamento de dezembro da Øliver's. Hoje: onboarding, se inteirar das campanhas e começar o calendário de dezembro com base no que já temos. Sexta: calendário de dezembro fechado e conteúdos da Rabanada preparados. Segunda e terça (presencial): start do Natal, lançamento da Pizza de Rabanada, reunião com a Coca-Cola e dezembro todo agendado.",
+ "foco": "Você é a dona do fechamento de dezembro da Øliver's. Hoje: se inteirar das campanhas, estudar a marca e começar o calendário de dezembro com base no que já temos. Sexta: onboarding técnico com o Matheus, calendário de dezembro fechado e início dos conteúdos da Rabanada. Segunda e terça (presencial): start do Natal, lançamento da Pizza de Rabanada, reunião com a Coca-Cola e dezembro todo agendado.",
  "rotina": [
   {
    "t": "Pesquisa de trends da semana: 30 min",
@@ -141,22 +141,6 @@ const DADOS = {
  ],
  "hoje": [
   {
-   "t": "26/11 · Onboarding com o Matheus e a Manu",
-   "w": "hoje",
-   "c": "",
-   "u": "",
-   "n": "História da Øliver's, time, forma de trabalho e prioridades do fim de ano.",
-   "p": true
-  },
-  {
-   "t": "26/11 · Acessos: Notion, Drive, 1Password, GitHub e agente no Claude",
-   "w": "hoje",
-   "c": "github.com",
-   "u": "https://github.com/signup",
-   "n": "Criar a conta no GitHub e mandar o usuário pra Manu. Os links de issue desta página abrem depois que você entrar na organização dev-seven7.",
-   "p": true
-  },
-  {
    "t": "26/11 · Se inteirar das campanhas de dezembro: ler os cards e a linha do tempo",
    "w": "hoje",
    "c": "cs-olivers#243",
@@ -179,20 +163,37 @@ const DADOS = {
    "u": "https://github.com/dev-seven7/cs-olivers/issues/243",
    "n": "Base: o que já está nos cards + trends de Natal e fim de ano. Rascunho pra fechar amanhã.",
    "p": true
+  },
+  {
+   "t": "27/11 · Onboarding técnico com o Matheus e a Manu",
+   "w": "amanhã, sex 27/11",
+   "c": "",
+   "u": "",
+   "n": "História da Øliver's, time, forma de trabalho e prioridades do fim de ano.",
+   "p": true
+  },
+  {
+   "t": "27/11 · Acessos: Notion, Drive, 1Password, GitHub e agente no Claude",
+   "w": "amanhã, sex 27/11 · no onboarding técnico",
+   "c": "github.com",
+   "u": "https://github.com/signup",
+   "n": "Se já der, crie hoje a conta no GitHub e mande o usuário pra Manu. Os links de issue desta página abrem depois que você entrar na organização dev-seven7.",
+   "p": true
   }
  ],
  "dias": [
   [
    "Qui 26/11",
    [
-    "Onboarding e acessos",
     "Se inteirar das campanhas",
+    "Estudar a marca (manifesto e site)",
     "Início da pesquisa e do calendário de dezembro"
    ]
   ],
   [
    "Sex 27/11",
    [
+    "Onboarding técnico com o Matheus + acessos",
     "🖤 Black Friday no ar (Emeric)",
     "Calendário de dezembro da Øliver's fechado",
     "Natal · Rabanada: preparar conteúdos, banners e foto do cardápio",
@@ -475,7 +476,7 @@ const DADOS = {
  ],
  "id": "eduarda",
  "painel": "https://dev-seven7.github.io/time-marketing-rob/",
- "atualizado": "qui 26/11/2026 · 15h50"
+ "atualizado": "qui 26/11/2026 · 16h30"
 };
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const linkify=s=>esc(s).replace(/(https:\/\/[^\s]+)/g,'<a class="ref" href="$1" target="_blank" rel="noopener">abrir link</a>');
