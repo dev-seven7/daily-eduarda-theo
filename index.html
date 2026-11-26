@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="cache-control" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Eduarda</title>
+<style>
+  :root{
+    --bg:#0f1115; --surface:#171a21; --surface2:#1e222b; --line:#2a2f3a;
+    --txt:#e8eaed; --txt2:#9aa3b2; --txt3:#6b7483;
+    --todo:#ffa53d; --hot:#ff6b6b; --ok:#3ecf8e; --accent:#7c8cff;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f6fa; --surface:#fff; --surface2:#f0f3f8; --line:#e2e7f0;
+      --txt:#1a1d24; --txt2:#5a6474; --txt3:#8b94a5; --todo:#c76f00; --hot:#d63b3b; --ok:#14935a; --accent:#4a5ad8; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:48px}
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  header{background:linear-gradient(135deg,#1b1f2b,#2a2140);border-bottom:1px solid var(--line);padding:26px 0 22px;margin-bottom:20px}
+  @media (prefers-color-scheme: light){header{background:linear-gradient(135deg,#2a2140,#3d2f5c)}}
+  header h1{margin:0;font-size:26px;letter-spacing:-.4px;color:#fff}
+  header .sub{color:#b9bfd0;font-size:14px;margin-top:4px}
+  header .links{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  header .links a{font-size:13px;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:5px 10px}
+  header .links a:hover{background:rgba(255,255,255,.1)}
+  .foco{background:color-mix(in srgb,var(--hot) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--hot) 35%,var(--line));
+    border-radius:14px;padding:14px 16px;margin-bottom:18px;font-size:15px}
+  .foco b{color:var(--hot)}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 26px}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+  .kpi b{display:block;font-size:24px;line-height:1.1}
+  .kpi span{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px}
+  section{margin-bottom:30px}
+  h2{font-size:19px;margin:0 0 4px}
+  .nota{font-size:13px;color:var(--txt3);margin:0 0 12px}
+  .lista{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:2px 16px}
+  .item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .item:last-child{border-bottom:none}
+  .item input{width:20px;height:20px;margin-top:2px;accent-color:var(--ok);flex:none;cursor:pointer}
+  .item .b{flex:1;min-width:0}
+  .item .t{font-weight:600;font-size:15px}
+  .item.done .t{opacity:.45;text-decoration:line-through}
+  .item .n{font-size:13px;color:var(--txt2);margin-top:2px;overflow-wrap:anywhere}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center}
+  .quando{font-size:12px;color:var(--txt3)}
+  .pri{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;background:color-mix(in srgb,var(--hot) 16%,transparent);color:var(--hot)}
+  a.ref{font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--surface2);border:1px solid var(--line);
+    border-radius:6px;padding:2px 8px;color:var(--accent);text-decoration:none}
+  a.ref:hover{border-color:var(--accent)}
+  .dias{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .dia{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .dia.hoje{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .dia h3{margin:0 0 6px;font-size:14px}
+  .dia ul{margin:0;padding-left:16px;font-size:13px;color:var(--txt2)}
+  .dia li{margin-bottom:4px}
+  @media (max-width:760px){.dias{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}.kpi b{font-size:20px}}
+  .sync{font-weight:600}.sync.ok{color:var(--ok)}.sync.off{color:var(--todo)}
+  footer{font-size:12px;color:var(--txt3);text-align:center;margin-top:10px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1 id="h1"></h1>
+  <div class="sub" id="sub"></div>
+  <div class="links" id="links"></div>
+</div></header>
+<main class="wrap">
+  <div class="foco" id="foco"></div>
+  <div class="kpis">
+    <div class="kpi"><b id="k1">0</b><span>pra hoje</span></div>
+    <div class="kpi"><b id="k2">0</b><span>feitas hoje</span></div>
+    <div class="kpi"><b id="k3">0</b><span>dias até fechar dezembro</span></div>
+  </div>
+  <section id="secRotina" hidden>
+    <h2>✅ Rotina obrigatória · hoje e todo dia</h2>
+    <p class="nota">Tarefa fixa, nos horários. O checklist zera sozinho a cada dia.</p>
+    <div class="lista" id="rotina"></div>
+  </section>
+  <section>
+    <h2>🔥 Hoje · quinta, 26/11</h2>
+    <p class="nota">Marque o que for fazendo: o check vai direto pra Manu. <span id="sync" class="sync"></span></p>
+    <div class="lista" id="hoje"></div>
+  </section>
+  <section>
+    <h2>📅 Próximos dias · 26/11 a 02/12</h2>
+    <p class="nota">Visão rápida do que cai em cada dia.</p>
+    <div class="dias" id="dias"></div>
+  </section>
+  <section>
+    <h2>📦 Frentes até ter 01/12</h2>
+    <p class="nota">Frentes do fim de ano da Øliver&#39;s. Os links de issue abrem depois que você entrar no GitHub. As marcadas como prioridade vêm primeiro.</p>
+    <div class="lista" id="semana"></div>
+  </section>
+  <section>
+    <h2>📚 Material de estudo</h2>
+    <p class="nota">Tudo abre sem login. Marque o que já leu. Dá pra jogar no seu agente também.</p>
+    <div class="lista" id="estudo"></div>
+  </section>
+  <section>
+    <h2>🧭 Pra ter sempre à mão</h2>
+    <p class="nota">Função, time e regras da marca.</p>
+    <div class="lista" id="continuo"></div>
+  </section>
+  <footer id="foot"></footer>
+</main>
+<script>
+const DADOS = {
+ "repo": "daily-eduarda-theo",
+ "nome": "Eduarda",
+ "emoji": "🍕",
+ "papel": "Analista de Marketing · Øliver's · Grupo ROB",
+ "foco": "Bem-vinda! Hoje é dia de onboarding: acessos, call com o Matheus e a Manu, e mergulho na marca. A meta do time é fechar todo o fim de ano da Øliver's até ter 01/12, e você revisa tudo com a gente. Em paralelo, você já começa a olhar 2027: datas comerciais e calendário de janeiro e fevereiro.",
+ "rotina": [
+  {
+   "t": "Pesquisa de trends da semana: 30 min",
+   "w": "início ou fim do dia",
+   "c": "",
+   "u": "",
+   "n": "O que dá pra adaptar pra Øliver's e postar AINDA na mesma semana. Trazer no grupo com a sugestão de formato.",
+   "p": false
+  },
+  {
+   "t": "Olhar o perfil da Øliver's: o que saiu, como está performando e se tem comentário sem resposta",
+   "w": "manhã e fim do dia",
+   "c": "@oliverspizza",
+   "u": "https://www.instagram.com/oliverspizza/",
+   "n": "Post parado sem interação a gente age: avisa a Luiza e pensa junto como puxar.",
+   "p": false
+  },
+  {
+   "t": "Conferir o que o Emeric subiu nos cards de dezembro e revisar",
+   "w": "ao longo do dia",
+   "c": "cs-olivers#243",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/243",
+   "n": "Fluxo: Emeric produz, você revisa, a Manu aprova e a Luiza agenda.",
+   "p": false
+  }
+ ],
+ "hoje": [
+  {
+   "t": "26/11 · Call de onboarding com o Matheus e a Manu",
+   "w": "hoje",
+   "c": "",
+   "u": "",
+   "n": "História da Øliver's, time, forma de trabalho e prioridades do fim de ano.",
+   "p": true
+  },
+  {
+   "t": "26/11 · Aceitar os convites: Notion, Drive e 1Password",
+   "w": "hoje",
+   "c": "",
+   "u": "",
+   "n": "A Manu está mandando os convites pro seu e-mail.",
+   "p": true
+  },
+  {
+   "t": "26/11 · Criar a conta no GitHub e mandar o usuário pra Manu",
+   "w": "hoje",
+   "c": "github.com",
+   "u": "https://github.com/signup",
+   "n": "É onde ficam todas as demandas das marcas. Os links de issue desta página abrem depois que você entrar na organização dev-seven7.",
+   "p": true
+  },
+  {
+   "t": "26/11 · Configurar o agente no Claude (Antigravity) com o Matheus",
+   "w": "hoje",
+   "c": "",
+   "u": "",
+   "n": "Onboarding técnico. Depois de pronto, dá pra jogar o material de estudo abaixo nele.",
+   "p": true
+  },
+  {
+   "t": "26/11 · Ler o manifesto e o site da marca",
+   "w": "hoje",
+   "c": "brand.oliverspizza.com.br",
+   "u": "https://brand.oliverspizza.com.br",
+   "n": "O site é a versão oficial e atual. O Manual da Marca em PDF é a versão antiga (o slogan e o conceito galáctico foram aposentados). Manifesto: https://drive.google.com/file/d/1rrt2YHCYSVgVr6sAq90JeF0QSeT5lYO_/view",
+   "p": true
+  },
+  {
+   "t": "26/11 · Ler o painel de prioridades do time e as dailies da Luiza e do Otávio",
+   "w": "hoje",
+   "c": "painel do time",
+   "u": "https://dev-seven7.github.io/time-marketing-rob/",
+   "n": "Pra entender quem faz o quê. Luiza: https://dev-seven7.github.io/daily-luiza-theo/ · Otávio: https://dev-seven7.github.io/daily-otavio-theo/",
+   "p": false
+  }
+ ],
+ "dias": [
+  [
+   "Qui 26/11",
+   [
+    "Onboarding com o Matheus e a Manu",
+    "Acessos: Notion, Drive, 1Password, GitHub e Claude",
+    "Leitura da marca",
+    "Black Friday fechada e fim de semana agendado (time)"
+   ]
+  ],
+  [
+   "Sex 27/11",
+   [
+    "🖤 Black Friday no ar",
+    "Alinhamento com o Emeric: o que está em produção de dezembro",
+    "1ª leitura dos cards de dezembro (Rabanada, Natal, festas, Região Oceânica)",
+    "Começar o levantamento das datas de 2027"
+   ]
+  ],
+  [
+   "Seg 30/11",
+   [
+    "Presencial com o time: fechar o fim de ano",
+    "10h: aprovação do calendário de dezembro + Rabanada",
+    "Rascunho das datas comerciais de 2027 e de jan/fev",
+    "Influs da Rabanada (com a Luiza)"
+   ]
+  ],
+  [
+   "Ter 01/12",
+   [
+    "Presencial com o time",
+    "🍕 Lançamento da Pizza de Rabanada",
+    "Fim de ano da Øliver's 100% fechado"
+   ]
+  ],
+  [
+   "Qua 02/12",
+   [
+    "Reunião de MKT 14h às 17h",
+    "Datas dos aniversários de Niterói e Copa (Alline)",
+    "Qui 03/12: pré-inauguração da Ogro SG · sex 04/12: decisão do Natal (A ou B)"
+   ]
+  ]
+ ],
+ "semana": [
+  {
+   "t": "Revisar o calendário de dezembro da Øliver's dia a dia, junto com o Emeric",
+   "w": "até seg 30/11",
+   "c": "cs-olivers#243",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/243",
+   "n": "A linha do tempo completa está no comentário dele no card. Aprovação com a Manu seg 30/11 às 10h.",
+   "p": true
+  },
+  {
+   "t": "Pizza de Rabanada: revisar roteiros, Reels, stories e banners do lançamento",
+   "w": "aprovação seg 30/11 · no ar ter 01/12",
+   "c": "cs-olivers#264",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/264",
+   "n": "A pizza de fim de ano que os clientes esperam (rabanada, doce de leite e canela). Reaproveita o material de 2025. Depois do lançamento, sequência de 01 a 07/12 com prova social e repost de clientes.",
+   "p": true
+  },
+  {
+   "t": "Natal: entrar no plano A (com a Coca-Cola) e no plano B (só Øliver's)",
+   "w": "decisão sex 04/12 · no ar 14/12",
+   "c": "cs-olivers#265",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/265",
+   "n": "Plano A: combo Rabanada + Coca, roleta, Christmas Ticket e no mínimo 10 influs. Plano B: combo Rabanada, caixa, cartinha do Noel, enfeite e cashback. Impressos na gráfica até 11/12. Proposta: https://dev-seven7.github.io/olivers-coca-natal/",
+   "p": true
+  },
+  {
+   "t": "Confraternizações de fim de ano: criativos pra puxar reserva no salão",
+   "w": "até ter 01/12",
+   "c": "cs-olivers#266",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/266",
+   "n": "Ainda não tem card próprio: alinhar com o Emeric e a Manu. Lembrete do tráfego: nunca “pede” em peça de salão, nem “reserva” em peça de delivery.",
+   "p": true
+  },
+  {
+   "t": "Réveillon Araruama: criativos em vídeo de topo e de meio pra reservas",
+   "w": "até ter 01/12",
+   "c": "cs-olivers#160",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/160",
+   "n": "Os de fundo entram quando o preço do ingresso fechar. Teaser já no ar, com enquete + caixinha + ManyChat captando nome e telefone pra central. A partir de 05/12 o LED de Cabo Frio roda Réveillon ou reservas (peça até qui 04/12).",
+   "p": true
+  },
+  {
+   "t": "Região Oceânica (Piratininga): criativos de topo, meio e fundo + peças da inauguração",
+   "w": "inauguração sex 08/01 · artes até 20/12",
+   "c": "cs-olivers#229",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/229",
+   "n": "Restaurante família. Treinamento 04/01, open pra família, amigos e influs 07/01, inauguração 08/01. Plano com a franqueada 09/12, gravação na região 17/12, gráfica até 18/12, Save the Date 19/12. Página: https://dev-seven7.github.io/olivers-piratininga-inauguracao/",
+   "p": true
+  },
+  {
+   "t": "2027: levantar as datas comerciais do ano e montar o calendário de janeiro e fevereiro",
+   "w": "rascunho até seg 30/11",
+   "c": "",
+   "u": "",
+   "n": "Datas do segmento, aniversários de loja, verão, Carnaval e volta às aulas. Entra no plano 2027 que a Manu apresenta.",
+   "p": true
+  },
+  {
+   "t": "Festas e aniversários de dezembro: Natal, Réveillon, Ano Novo, 3 anos de Niterói e 2 anos de Copa",
+   "w": "tudo agendado até 21/12",
+   "c": "cs-olivers#266",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/266",
+   "n": "Horário das festas vem da operação. Preço e cupom só com o ok da Alline (Estratégia).",
+   "p": false
+  },
+  {
+   "t": "Criativos de tráfego: entender o brief da Performance (Ghost)",
+   "w": "esta semana",
+   "c": "cs-olivers#259",
+   "u": "https://github.com/dev-seven7/cs-olivers/issues/259",
+   "n": "Falta criativo intencional pra cada campanha: aniversário e confraternização, remarketing de salão, remarketing de delivery e conversão. Sempre: pizza na tela nos 3 primeiros segundos. Nunca: data em peça que fica sempre no ar.",
+   "p": false
+  }
+ ],
+ "estudo": [
+  {
+   "t": "Site da marca (versão oficial)",
+   "c": "abrir",
+   "u": "https://brand.oliverspizza.com.br",
+   "n": "Posicionamento, voz, cores, tipografia e regras.",
+   "w": "",
+   "p": true
+  },
+  {
+   "t": "Manifesto Øliver's",
+   "c": "Drive",
+   "u": "https://drive.google.com/file/d/1rrt2YHCYSVgVr6sAq90JeF0QSeT5lYO_/view",
+   "n": "",
+   "w": "",
+   "p": true
+  },
+  {
+   "t": "Manual de Cultura e Valores 2k26",
+   "c": "Drive",
+   "u": "https://drive.google.com/file/d/1KLfUgIsZ4zfSQT0-DkhDxs02OjFO1_7W/view",
+   "n": "",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Brandbook e logos",
+   "c": "Drive",
+   "u": "https://drive.google.com/drive/folders/1JuS_7yZ_8F2AwKpMNKNzpFyHmMmrtSr6",
+   "n": "Logos (PNG e SVG): https://drive.google.com/drive/folders/16cOpDDgWCCeqdPzZ2LBSO1VZ1v9O8ncL · o Manual da Marca em PDF da pasta é a versão antiga.",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Visão geral das marcas do Grupo ROB",
+   "c": "abrir",
+   "u": "https://dev-seven7.github.io/geral-das-marcas-15-10/",
+   "n": "",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Aniversário de 9 anos da Øliver's",
+   "c": "abrir",
+   "u": "https://dev-seven7.github.io/olivers-9anos-roteiro-v2/",
+   "n": "",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Proposta de Natal com a Coca-Cola",
+   "c": "abrir",
+   "u": "https://dev-seven7.github.io/olivers-coca-natal/",
+   "n": "",
+   "w": "",
+   "p": true
+  },
+  {
+   "t": "Captação de Natal (24/11)",
+   "c": "abrir",
+   "u": "https://dev-seven7.github.io/captacao-natal-24-11/",
+   "n": "",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Inauguração Piratininga / Região Oceânica",
+   "c": "abrir",
+   "u": "https://dev-seven7.github.io/olivers-piratininga-inauguracao/",
+   "n": "",
+   "w": "",
+   "p": true
+  },
+  {
+   "t": "Demandas e esteira de design do fim de ano",
+   "c": "demandas",
+   "u": "https://dev-seven7.github.io/demandas-design-fim-de-ano/",
+   "n": "Esteira: https://dev-seven7.github.io/esteira-design-fim-de-ano/",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Filme O Gatola da Cartola: briefings",
+   "c": "abrir",
+   "u": "https://dev-seven7.github.io/gatola-briefings-freela/",
+   "n": "",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Black Friday: iFood, Araruama e assessoria de imprensa",
+   "c": "iFood",
+   "u": "https://dev-seven7.github.io/proposta-grupo-rob-ifood-bf/",
+   "n": "Araruama: https://dev-seven7.github.io/araruama-black-friday-nov26/ · Assessoria: https://dev-seven7.github.io/assessoria-black-friday-nov26/",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Resultados: panorama de outubro e relatório de social",
+   "c": "panorama",
+   "u": "https://dev-seven7.github.io/panorama-marketing-outubro/",
+   "n": "Social: https://dev-seven7.github.io/relatorio-social-out26/",
+   "w": "",
+   "p": false
+  },
+  {
+   "t": "Resultados: parcial de novembro, iFood e parceiros",
+   "c": "novembro",
+   "u": "https://dev-seven7.github.io/novembro-parcial-marcas/",
+   "n": "iFood setembro: https://dev-seven7.github.io/ifood-setembro/ · Parceiros de outubro: https://dev-seven7.github.io/parceiros-outubro-26/",
+   "w": "",
+   "p": false
+  }
+ ],
+ "continuo": [
+  {
+   "t": "Sua função: o marketing da Øliver's de ponta a ponta, com foco em vendas",
+   "w": "",
+   "c": "",
+   "u": "",
+   "n": "Planejamento (plano mensal, datas, promoções com a Alline olhando margem) · conteúdo (calendário, pauta, copy e briefing, aprovação antes de subir) · canais de venda (site, iFood e 99 atualizados, puxando pro canal próprio) · resultados (pedidos, ticket, unidade e canal, tráfego com a Ghost, relatórios) · influs, parcerias e eventos · marca (garantir o brandbook).",
+   "p": false
+  },
+  {
+   "t": "Como o time funciona",
+   "w": "",
+   "c": "",
+   "u": "",
+   "n": "Matheus (CMO) e Manu (Head) definem estratégia e campanhas → analistas montam calendário, briefing e comunicação → designer faz as peças e o Otávio edita vídeo e foto → a Luiza posta, interage e reporta → a Manu aprova e acompanha.",
+   "p": false
+  },
+  {
+   "t": "Quem é quem",
+   "w": "",
+   "c": "",
+   "u": "",
+   "n": "Emeric: analista (fim de ano da Øliver's, depois Temakeria) · Victor: analista da Ogro · Luiza: social media · Otávio: produção de conteúdo · Alline: Estratégia (preço, cupom, margem) · Clarissa: operação · Celso e Luiz (Ghost): tráfego pago.",
+   "p": false
+  },
+  {
+   "t": "A Øliver's em 1 minuto",
+   "w": "",
+   "c": "",
+   "u": "",
+   "n": "Nasceu em 2017 em Maricá. 9 unidades: 5 com salão (Cabo Frio, Maricá, Niterói, São Gonçalo e Araruama) e 4 delivery (Copacabana, Lapa, Itaipuaçu e Alcântara). Mais que pizza: compete por experiência, não por preço. Slogan: Vamos surpreender e encantar você. Marca cultural, não temática.",
+   "p": false
+  },
+  {
+   "t": "Regras de ouro",
+   "w": "",
+   "c": "",
+   "u": "",
+   "n": "Sempre Øliver's com Ø · preço, cupom e combo só com o ok da Alline · nada de “desconto” ou “grátis” sem validação · “A melhor pizza da galáxia” está aposentado · tudo da Ghost vai no grupo “OLV Marketing Ghost Lab”.",
+   "p": false
+  },
+  {
+   "t": "Agenda fixa",
+   "w": "",
+   "c": "",
+   "u": "",
+   "n": "Quarta 14h às 17h: Reunião de MKT · presencial em Icaraí 1 a 2 dias por semana (esta semana: seg 30/11 e ter 01/12).",
+   "p": false
+  }
+ ],
+ "id": "eduarda",
+ "painel": "https://dev-seven7.github.io/time-marketing-rob/",
+ "atualizado": "qui 26/11/2026 · 14h40"
+};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const linkify=s=>esc(s).replace(/(https:\/\/[^\s]+)/g,'<a class="ref" href="$1" target="_blank" rel="noopener">abrir link</a>');
+const API='https://checks-time-mkt.grupo-rob-mkt.workers.dev'+'/s/'+DADOS.id;
+const KEY='daily-'+DADOS.id+'-sync';
+let st={}; try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){st={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const hash=t=>{let h=5381;for(const c of String(t))h=((h<<5)+h+c.charCodeAt(0))|0;return (h>>>0).toString(36)};
+const hoje=new Date(); const dk=hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'-'+String(hoje.getDate()).padStart(2,'0');
+const syncEl=()=>document.getElementById('sync');
+function setSync(ok,msg){const e=syncEl(); if(e){e.textContent=msg; e.className='sync '+(ok?'ok':'off')}}
+async function puxar(){
+  if(!API.startsWith('http'))return setSync(false,'check salvo só neste navegador');
+  try{const r=await fetch(API,{cache:'no-store'}); if(!r.ok)throw 0; const j=await r.json();
+    st={}; for(const k in j) st[k]=true; save(); render(); setSync(true,'✓ checks sincronizados com a Manu');
+  }catch(e){setSync(false,'sem conexão: check salvo só neste navegador')}
+}
+async function enviar(k,v,t){
+  st[k]=v; if(!v) delete st[k]; save();
+  if(!API.startsWith('http'))return;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({k,v,t,by:DADOS.nome})}); if(!r.ok)throw 0; setSync(true,'✓ checks sincronizados com a Manu')}
+  catch(e){setSync(false,'sem conexão: esse check não chegou na Manu, tenta de novo')}
+}
+const LISTAS=[];
+function lista(id,arr,check,elId){ LISTAS.push([id,arr,check,elId]); desenha(id,arr,check,elId) }
+function desenha(id,arr,check,elId){
+  const el=document.getElementById(elId||id);
+  el.innerHTML=arr.map(o=>{
+    const k=id+'-'+hash(o.t), done=!!st[k];
+    return `<div class="item${done?' done':''}">${check?`<input type="checkbox" data-k="${k}" data-t="${esc(o.t.slice(0,150))}"${done?' checked':''} aria-label="feito">`:''}
+      <div class="b"><div class="t">${esc(o.t)}</div>${o.n?`<div class="n">${linkify(o.n)}</div>`:''}
+      <div class="meta">${o.p?'<span class="pri">prioridade</span>':''}${o.w?`<span class="quando">🗓 ${esc(o.w)}</span>`:''}${o.u?`<a class="ref" href="${esc(o.u)}" target="_blank" rel="noopener">${esc(o.c||'link')}</a>`:''}</div></div></div>`}).join('');
+  el.querySelectorAll('input').forEach(cb=>cb.addEventListener('change',()=>{enviar(cb.dataset.k,cb.checked,cb.dataset.t);cb.closest('.item').classList.toggle('done',cb.checked);kpis()}));
+}
+function render(){LISTAS.forEach(a=>desenha(...a));kpis()}
+function kpis(){
+  document.getElementById('k1').textContent=DADOS.hoje.length;
+  document.getElementById('k2').textContent=DADOS.hoje.filter(o=>st['hoje-'+hash(o.t)]).length;
+  const alvo=new Date(2026,11,1), h=new Date(); h.setHours(0,0,0,0);
+  document.getElementById('k3').textContent=Math.max(0,Math.round((alvo-h)/864e5));
+}
+document.getElementById('h1').textContent=DADOS.emoji+' Daily '+DADOS.nome;
+document.getElementById('sub').textContent=DADOS.papel+' · atualizado '+DADOS.atualizado;
+document.getElementById('links').innerHTML=`<a href="${esc(DADOS.painel)}" target="_blank" rel="noopener">📊 Painel do time</a><a href="https://brand.oliverspizza.com.br" target="_blank" rel="noopener">🍕 Marca Øliver's</a><a href="https://github.com/dev-seven7/cs-olivers/issues/243" target="_blank" rel="noopener">🗓 Dezembro (GitHub)</a>`;
+document.getElementById('foco').innerHTML='<b>Foco de hoje.</b> '+esc(DADOS.foco);
+const semana=[...DADOS.semana].sort((a,b)=>(b.p?1:0)-(a.p?1:0));
+if(DADOS.rotina){document.getElementById('secRotina').hidden=false; lista('rot'+dk,DADOS.rotina,true,'rotina');}
+lista('hoje',DADOS.hoje,true);lista('semana',semana,true); lista('estudo',DADOS.estudo,true); lista('continuo',DADOS.continuo,false);
+const hojeTxt='Qui 26/11';
+document.getElementById('dias').innerHTML=DADOS.dias.map(([d,its])=>`<div class="dia${d===hojeTxt?' hoje':''}"><h3>${esc(d)}${d===hojeTxt?' · hoje':''}</h3><ul>${its.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
+document.getElementById('foot').textContent='Daily montada pelo THEO com a Manu · dúvidas, chama a Manu';
+kpis(); puxar(); setInterval(puxar,30000);
+</script>
+</body>
+</html>
